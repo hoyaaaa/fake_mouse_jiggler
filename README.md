@@ -1,3 +1,5 @@
+# Rock Your Mouse! (Similar to MouseJiggler)
+
 ## install package
 
 - pyautogui
@@ -13,5 +15,5 @@ create-version-file ./version-info.yaml --outfile ./version-info.txt
 ## pyinstaller
 
 ```bash
-pyinstaller --noconfirm --onefile --windowed --icon "./chrome.ico" --name "chrome" --version-file "./version-info.txt" --add-data "./chrome.ico;." --add-data "./running.gif;." --paths "./venv/Lib/site-packages"  "./mouse-jiggler.py"
+pyinstaller --noconfirm --onefile --windowed --icon "./rock.ico" --name "RockYourMouse.exe" --version-file "./version-info.txt" --add-data "./rock.ico;." --add-data "./rock-dog.gif;." --paths "./venv/Lib/site-packages"  "./rock-your-mouse.py"
 ```
