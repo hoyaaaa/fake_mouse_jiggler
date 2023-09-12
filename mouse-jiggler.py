@@ -27,12 +27,13 @@ class ImageLabel(tkinter.Label):
         self.idx = 0
         im = Image.open(image_path)
 
-        self.n_frames = im.n_frames
         self.frames = []
-        for i in range(self.n_frames):
+        for i in range(im.n_frames):
             frame = im.copy().resize((50, 50))
             self.frames.append(ImageTk.PhotoImage(frame))
             im.seek(i)
+        self.frames = self.frames[2:]
+        self.n_frames = len(self.frames)
         self.configure(image=self.frames[self.idx])
 
     def run(self):
