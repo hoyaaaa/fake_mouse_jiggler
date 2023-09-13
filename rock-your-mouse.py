@@ -5,9 +5,10 @@ import os
 import sys
 import tkinter.font as font
 import random
-from multiprocessing import Process, Queue
 import time
 from threading import Thread
+from pystray import MenuItem as item
+import pystray
 
 pyautogui.FAILSAFE = False
 
@@ -19,16 +20,7 @@ def resource_path(relative_path):
 
     return os.path.join(base_path, relative_path)
 
-window = tkinter.Tk()
-window.geometry("500x130")
-window.resizable(False, False)
-window.title("Rock Your Mouse!")
-window.iconbitmap(default=resource_path("rock.ico"))
-window.grid_rowconfigure(0, weight=1)
-window.grid_columnconfigure(0, weight=1)
-
 status = "stopped" # stopped, running, rocking
-
 
 class ImageLabel(tkinter.Label):
     def load(self, image_path):
@@ -101,24 +93,59 @@ class Mouse():
         thread.setDaemon(True)
         thread.start()
 
-def click_event():
-    global status
-    if status == "stopped":
-        status = "running"
-        mouse.run()
-        img.run()
-        btn["text"] = "Stop!"
-    else:
-        status = "stopped"
-        btn["text"] = "Let's Rock!"
+class Window():
+    def __init__(self):
+        self.window = tkinter.Tk()
+        self.window.geometry("500x130")
+        self.window.resizable(False, False)
+        self.window.title("Rock Your Mouse!")
+        self.window.iconbitmap(default=resource_path("rock.ico"))
+        self.window.grid_rowconfigure(0, weight=1)
+        self.window.grid_columnconfigure(0, weight=1)
+        self.image = Image.open(resource_path("rock.ico"))
+        self.menu = (
+            pystray.MenuItem('Show', self.show_window),
+            pystray.MenuItem('Quit', self.quit_window)
+            )
+        self.mouse = Mouse()
+      
+        self.btn = tkinter.Button(self.window, text="Let's Rock!", command=self.click_event, font=font.Font(size=20, weight="bold"))
+        self.btn.grid(row=0, column=0, sticky="nesw")
 
-mouse = Mouse()
-img = ImageLabel(window)
-img.load(resource_path("rock-dog.gif"))
+        self.img = ImageLabel(self.window)
+        self.img.load(resource_path("rock-dog.gif"))
+        self.img.grid(row=0, column=1, sticky="nesw", padx=(15, 15), pady=(15, 15))
 
-btn = tkinter.Button(window, text="Let's Rock!", command=click_event, font=font.Font(size=20, weight="bold"))
+        self.window.protocol('WM_DELETE_WINDOW', self.withdraw_window)
+        self.window.mainloop()
 
-btn.grid(row=0, column=0, sticky="nesw")
-img.grid(row=0, column=1, sticky="nesw", padx=(15, 15), pady=(15, 15))
 
-window.mainloop()
+    def quit_window(self):
+        self.icon.stop()
+        self.window.destroy()
+
+
+    def show_window(self):
+        self.icon.stop()
+        self.window.protocol('WM_DELETE_WINDOW', self.withdraw_window)
+        self.window.after(0, self.window.deiconify)
+
+
+    def withdraw_window(self):
+        self.window.withdraw()
+        self.icon = pystray.Icon("name", self.image, "Rock Your Mouse!", self.menu)
+        self.icon.run()
+
+    def click_event(self):
+        global status
+        if status == "stopped":
+            status = "running"
+            self.mouse.run()
+            self.img.run()
+            self.btn["text"] = "Stop!"
+        else:
+            status = "stopped"
+            self.btn["text"] = "Let's Rock!"
+
+if __name__ in '__main__':
+    Window()
